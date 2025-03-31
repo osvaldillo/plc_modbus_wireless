@@ -1,11 +1,3 @@
-/*
-  Modbus-Arduino Example - Master Modbus IP Client (ESP8266/ESP32)
-  Read Holding Register from Server device
-
-  (c)2018 Alexander Emelianov (a.m.emelianov@gmail.com)
-  https://github.com/emelianov/modbus-esp8266
-*/
-
 #ifdef ESP8266
  #include <ESP8266WiFi.h>
 #else
