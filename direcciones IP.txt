@@ -1,0 +1,8 @@
+PLC IP 192.168.1.80
+ESP32 IP 192.168.1.81
+Modem 192.168.1.84
+
+Máscara de subred 255.255.255.0
+Puerta de enlace predeterminada 192.168.1.83
+
+
