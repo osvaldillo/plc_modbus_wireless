@@ -2,8 +2,8 @@
 #include "src.h"
 #include <ModbusIP_ESP8266.h>
 
-const int REG = 528;               // Modbus Hreg Offset
-IPAddress remote(192, 168, 1, 80);  // Address of Modbus Slave device
+const int REG = 0;               // Modbus Hreg Offset
+IPAddress remote(192, 168, 100, 18);  // Address of Modbus Slave device
 const int LOOP_COUNT = 10;
 
 ModbusIP mb;  //ModbusIP object
@@ -12,6 +12,41 @@ const char* ssid = "Mega-2.4G-16B1";
 const char* password = "Jb8w5mzByz";
 WiFiServer server(80);
 
+int registro(String bobina) {
+    int valor;
+    if(bobina == "A+"){
+      valor = 1;
+    }else if(bobina == "A-"){
+      valor = 2;
+    }else if(bobina == "B+"){
+      valor = 4;
+    }else if(bobina == "B-"){
+      valor = 8;
+    }else if(bobina == "C+"){
+      valor = 16;
+    }else if(bobina == "C-"){
+      valor = 32;
+    }else if(bobina == "D+"){
+      valor = 64;
+    }else if(bobina == "D-"){
+      valor = 128;
+    }
+    else{
+      valor = 0;
+    }
+    return valor;
+}
+
+void splitString(String input, char delimiter, String output[], int size = 0) {
+    int inicio = 0, fin = 0, indice = 0;
+    while ((fin = input.indexOf(delimiter, inicio)) != -1) {
+        output[indice++] = input.substring(inicio, fin);
+        inicio = fin + 1;
+    }
+    
+    output[indice++] = input.substring(inicio); // Último fragmento
+    size = indice; // Devolver la cantidad de elementos almacenados
+}
 
 void setup() {
     Serial.begin(115200);
@@ -57,6 +92,22 @@ void loop() {
             secuencia.replace("%2B", "+"); 
             secuencia.replace(" ", ","); 
             Serial.println("Secuencia recibida: " + secuencia);
+            const int maxAcciones = 50;
+            String secuencias[maxAcciones];
+            splitString(secuencia, ',',secuencias);
+            for(int i = 0; i < maxAcciones; i++){
+              if(registro(secuencias[i])>0){
+                Serial.print("Registro: ");
+                Serial.print(secuencias[i]);
+                Serial.print(":");
+                Serial.println(registro(secuencias[i]));
+                mb.writeHreg(remote, REG, registro(secuencias[i]));
+                mb.task();
+                delay(500);
+              }
+            }
+            
+
         }
         
         client.println("HTTP/1.1 200 OK");
@@ -69,7 +120,7 @@ void loop() {
         Serial.println("Cliente desconectado");
     }
     if (mb.isConnected(remote)) {   // Check if connection to Modbus Slave is established
-      Serial.println("Connected");
+      //Serial.println("Connected");
       mb.readHreg(remote, REG, &res);  // Initiate Read Coil from Modbus Slave
     } else {
       mb.connect(remote);           // Try to connect if no connection
