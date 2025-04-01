@@ -59,7 +59,7 @@ const char* html = R"(
             <div class="label plus" draggable="true">D+</div>
         </div>
         <div class="drop-zone" id="dropZone"></div>
-        <p>Texto formado: <span id="resultado"></span></p>
+        <p>Secuencia: <span id="resultado"></span></p>
         <div class="button-container">
             <button class="btn" id="undoBtn">Deshacer</button>
             <button class="btn" id="sendBtn">Enviar</button>
