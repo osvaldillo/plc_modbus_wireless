@@ -39,15 +39,19 @@ void loop() {
                 }
             }
         }
-        
         Serial.println(request);
         if (request.indexOf("GET /?led=on") != -1) {
             digitalWrite(ledPin, HIGH);
         } else if (request.indexOf("GET /?led=off") != -1) {
             digitalWrite(ledPin, LOW);
+        } else if (request.indexOf("GET /?secuencia=") != -1) {
+            int startIndex = request.indexOf("secuencia=") + 10;
+            int endIndex = request.indexOf(" ", startIndex);
+            String secuencia = request.substring(startIndex, endIndex);
+            secuencia.replace("%20", " ");
+            secuencia.replace("%2B", "+"); // Reemplazar espacios codificados en URL
+            Serial.println("Secuencia recibida: " + secuencia);
         }
-        
-        //String html = generateHTML();
         
         client.println("HTTP/1.1 200 OK");
         client.println("Content-Type: text/html");

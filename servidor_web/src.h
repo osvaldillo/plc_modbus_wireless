@@ -56,8 +56,9 @@ const char* html = R"(
             <div class="label plus" draggable="true">A+</div>
             <div class="label plus" draggable="true">B+</div>
             <div class="label plus" draggable="true">C+</div>
+            <div class="label plus" draggable="true">D+</div>
         </div>
-        <div class="drop-zone" id="dropZone">Arrastra aquí</div>
+        <div class="drop-zone" id="dropZone"></div>
         <p>Texto formado: <span id="resultado"></span></p>
         <div class="button-container">
             <button class="btn" id="undoBtn">Deshacer</button>
@@ -119,6 +120,13 @@ const char* html = R"(
                     toggleLabel(lastEntry.originalLabel);
                 }
             }
+        });
+        sendBtn.addEventListener('click', () => {
+            let secuencia = document.getElementById("resultado").innerText;
+            let url = "/?secuencia=" + encodeURIComponent(secuencia);
+            fetch(url)
+                .then(response => console.log("Secuencia enviada: ", secuencia))
+                .catch(error => console.error("Error al enviar secuencia", error));
         });
     </script>
 </body>
