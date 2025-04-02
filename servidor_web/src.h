@@ -22,6 +22,11 @@ const char* html = R"(
             display: flex;
             gap: 10px;
         }
+        .label-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
         .label {
             padding: 10px;
             border: 1px solid #000;
@@ -46,17 +51,33 @@ const char* html = R"(
             cursor: pointer;
         }
         .btn:hover {
-            background-color: #0056b3;
+            background-color: #000000;
+        }
+        .btn:disabled {
+            background-color: #fff;
+            opacity: 0.6;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="label-container" id="labelContainer">
-            <div class="label plus" draggable="true">A+</div>
-            <div class="label plus" draggable="true">B+</div>
-            <div class="label plus" draggable="true">C+</div>
-            <div class="label plus" draggable="true">D+</div>
+            <div class="label-item">
+                <button class="btn toggle-btn">Toggle</button>
+                <div class="label plus" draggable="true">A+</div>
+            </div>
+            <div class="label-item">
+                <button class="btn toggle-btn">Toggle</button>
+                <div class="label plus" draggable="true">B+</div>
+            </div>
+            <div class="label-item">
+                <button class="btn toggle-btn">Toggle</button>
+                <div class="label plus" draggable="true">C+</div>
+            </div>
+            <div class="label-item">
+                <button class="btn toggle-btn">Toggle</button>
+                <div class="label plus" draggable="true">D+</div>
+            </div>
         </div>
         <div class="drop-zone" id="dropZone"></div>
         <p>Secuencia: <span id="resultado"></span></p>
@@ -66,12 +87,16 @@ const char* html = R"(
         </div>
     </div>
     <script>
-        const labelContainer = document.getElementById('labelContainer');
+        const labelItems = document.querySelectorAll('.label-item');
         const labels = labelContainer.querySelectorAll('.label');
         const dropZone = document.getElementById('dropZone');
         const resultado = document.getElementById('resultado');
         const undoBtn = document.getElementById('undoBtn');
         const sendBtn = document.getElementById('sendBtn');
+        let a_times = 0;
+        let b_times = 0;
+        let c_times = 0;
+        let d_times = 0;
         const history = [];
 
         function toggleLabel(label) {
@@ -82,7 +107,14 @@ const char* html = R"(
             return newText;
         }
 
-        labels.forEach(label => {
+        labelItems.forEach(item => {
+            const label = item.querySelector('.label');
+            const toggleBtn = item.querySelector('.toggle-btn');
+
+            toggleBtn.addEventListener('click', () => {
+                toggleLabel(label);
+            });
+
             label.addEventListener('dragstart', (e) => {
                 e.dataTransfer.setData('text', label.innerText);
             });
@@ -98,12 +130,23 @@ const char* html = R"(
             
             const newLabel = document.createElement('div');
             newLabel.classList.add('label', text.endsWith('+') ? 'plus' : 'minus');
+            if(text.startsWith('A')){a_times++;}
+            else if(text.startsWith('B')){b_times++;}
+            else if(text.startsWith('C')){c_times++;}
+            else if(text.startsWith('D')){d_times++;}
             newLabel.innerText = text;
             dropZone.appendChild(newLabel);
             history.push({ label: newLabel, originalText: text });
 
             resultado.textContent += resultado.textContent ? ' ' + text : text;
-            
+
+            labelItems.forEach(item => {
+                const label = item.querySelector('.label');
+                const toggleBtn = item.querySelector('.toggle-btn');
+                if (label.innerText === text) {
+                    toggleBtn.disabled = true;
+                }
+            });
             const originalLabel = [...labels].find(l => l.innerText === text);
             if (originalLabel) {
                 history[history.length - 1].originalLabel = originalLabel;
@@ -114,13 +157,32 @@ const char* html = R"(
         undoBtn.addEventListener('click', () => {
             if (history.length > 0) {
                 const lastEntry = history.pop();
+                
                 dropZone.removeChild(lastEntry.label);
+                console.log(lastEntry.label.textContent);
+                if(lastEntry.label.textContent.startsWith('A')){a_times--;}
+                else if(lastEntry.label.textContent.startsWith('B')){b_times--;}
+                else if(lastEntry.label.textContent.startsWith('C')){c_times--;}
+                else if(lastEntry.label.textContent.startsWith('D')){d_times--;}
                 resultado.textContent = resultado.textContent.split(' ').slice(0, -1).join(' ');
-                if (lastEntry.originalLabel) {
-                    toggleLabel(lastEntry.originalLabel);
-                }
+                toggleLabel(lastEntry.originalLabel);
+                labelItems.forEach(item => {
+                    const label = item.querySelector('.label');
+                    const toggleBtn = item.querySelector('.toggle-btn');
+                    if (label.innerText === lastEntry.originalText) {
+                        if(label.textContent.startsWith('A') && a_times === 0){
+                            toggleBtn.disabled = false;}
+                        else if(label.textContent.startsWith('B') && b_times === 0){
+                            toggleBtn.disabled = false;}
+                        else if(label.textContent.startsWith('C') && c_times === 0){
+                            toggleBtn.disabled = false;}
+                        else if(label.textContent.startsWith('D') && d_times === 0){
+                            toggleBtn.disabled = false;}
+                    }
+                });
             }
         });
+        
         sendBtn.addEventListener('click', () => {
             let secuencia = document.getElementById("resultado").innerText;
             let url = "/?secuencia=" + encodeURIComponent(secuencia);
@@ -131,6 +193,7 @@ const char* html = R"(
     </script>
 </body>
 </html>
+
 )";
 
 #endif
