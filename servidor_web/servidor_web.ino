@@ -37,6 +37,34 @@ int registro(String bobina) {
     return valor;
 }
 
+int lecturaSensor(String bobina){
+  int Hreg;
+  uint16_t respuesta;
+    if(bobina == "A+"){
+      Hreg = 1;
+    }else if(bobina == "A-"){
+      Hreg = 2;
+    }else if(bobina == "B+"){
+      Hreg = 3;
+    }else if(bobina == "B-"){
+      Hreg = 4;
+    }else if(bobina == "C+"){
+      Hreg = 5;
+    }else if(bobina == "C-"){
+      Hreg = 6;
+    }else if(bobina == "D+"){
+      Hreg = 7;
+    }else if(bobina == "D-"){
+      Hreg = 8;
+    }
+    else{
+      Hreg = 49;
+    }
+    mb.readHreg(remote, Hreg, &respuesta);
+    mb.task();
+    return respuesta;
+}
+
 void splitString(String input, char delimiter, String output[], int size = 0) {
     int inicio = 0, fin = 0, indice = 0;
     while ((fin = input.indexOf(delimiter, inicio)) != -1) {
@@ -103,7 +131,9 @@ void loop() {
                 Serial.println(registro(secuencias[i]));
                 mb.writeHreg(remote, REG, registro(secuencias[i]));
                 mb.task();
-                delay(500);
+                while(lecturaSensor(secuencias[i]) != 1){
+
+                }
               }
             }
             
