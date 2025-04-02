@@ -3,13 +3,13 @@
 #include <ModbusIP_ESP8266.h>
 
 // Configuración de red
-const char* ssid = "Mega-2.4G-16B1";
-const char* password = "Jb8w5mzByz";
+const char* ssid = "Mega_2.4G_E4A1";
+const char* password = "qHkqSqKc";
 WiFiServer server(80);
 
 // Configuración de Modbus
 const int REG = 0;
-IPAddress remote(192, 168, 100, 18);
+IPAddress remote(192, 168, 1, 3);
 ModbusIP mb;
 
 // Parámetros globales
@@ -31,22 +31,53 @@ int registro(String bobina) {
 }
 
 // Función para leer el sensor asociado a una bobina
-int lecturaSensor(String bobina) {
+String lecturaSensor(String bobina) {
     int Hreg;
-    if (bobina == "A+") Hreg = 1;
-    else if (bobina == "A-") Hreg = 2;
-    else if (bobina == "B+") Hreg = 3;
-    else if (bobina == "B-") Hreg = 4;
-    else if (bobina == "C+") Hreg = 5;
-    else if (bobina == "C-") Hreg = 6;
-    else if (bobina == "D+") Hreg = 7;
-    else if (bobina == "D-") Hreg = 8;
-    else Hreg = 49;
-    
+    String sensor;
+    if (bobina == "A+") {
+      sensor = "a1";
+      Hreg = 2;
+      }
+    else if (bobina == "A-") {
+      sensor = "a0";
+      Hreg = 1;
+    }
+    else if (bobina == "B+") {
+      sensor = "b1";
+      Hreg = 4;
+    }
+    else if (bobina == "B-") {
+      sensor = "b0";
+      Hreg = 3;
+    }
+    else if (bobina == "C+") {
+      sensor = "c1";
+      Hreg = 6;
+    }
+    else if (bobina == "C-") {
+      sensor = "c0";
+      Hreg = 5;
+    }
+    else if (bobina == "D+") {
+      sensor = "d1";
+      Hreg = 8;
+    }
+    else if (bobina == "D-") {
+      sensor = "d0";
+      Hreg = 7;
+    }
+    else return "0";
+    mb.task();
     uint16_t respuesta;
     mb.readHreg(remote, Hreg, &respuesta);
-    mb.task();
-    return respuesta;
+    //Serial.print("Sensor: ");
+    //Serial.print(sensor);
+    //Serial.print("\t");
+    String salida = bobina + String(respuesta);
+    //Serial.print("\t Respuesta recibida: ");
+    //Serial.print(salida);
+    delay(10);
+    return salida;
 }
 
 // Función para dividir una cadena en elementos usando un delimitador
@@ -105,21 +136,46 @@ void loop() {
             Serial.println("Secuencia recibida: " + secuencia);
             
             const int maxAcciones = 50;
-            String secuencias[maxAcciones];
+            String bobinas[maxAcciones];
             int size = 0;
-            splitString(secuencia, ',', secuencias, size);
-            
+            splitString(secuencia, ',', bobinas, size);
+            Serial.print("Tamaño de la secuencia: ");
+            Serial.println(size);
             for (int i = 0; i < size; i++) {
-                if (registro(secuencias[i]) > 0) {
-                    Serial.print("Registro: ");
-                    Serial.print(secuencias[i]);
-                    Serial.print(":");
-                    Serial.println(registro(secuencias[i]));
-                    mb.writeHreg(remote, REG, registro(secuencias[i]));
+                if (registro(bobinas[i]) > 0) {
+                    Serial.print("\nBobina ");
+                    Serial.println(bobinas[i]);
+                    //Serial.print(":");
+                    //Serial.println(registro(bobinas[i]));
+                    mb.writeHreg(remote, REG, registro(bobinas[i]));
                     mb.task();
-                    while (lecturaSensor(secuencias[i]) != 1) {
-                        // Esperar a que la lectura del sensor sea 1
+                    lecturaSensor(bobinas[i]);
+                    lecturaSensor(bobinas[i]);
+                    lecturaSensor(bobinas[i]);
+                    lecturaSensor(bobinas[i]);
+                    lecturaSensor(bobinas[i]);
+                    lecturaSensor(bobinas[i]);
+                    String respuestaEsperada = bobinas[i] + "1";
+                    String respuestaRecibida = lecturaSensor(bobinas[i]);
+                    for (int j = 0; j < 30; j++) {
+                      respuestaRecibida = lecturaSensor(bobinas[i]);
+                      delay(5);
                     }
+                    Serial.print("Respuesta esperada: ");
+                    Serial.print(respuestaEsperada);
+                    Serial.print("\t Respuesta recibida: ");
+                    Serial.print(respuestaRecibida);
+                    Serial.println("\t Desde afuera");
+                    while (respuestaRecibida != respuestaEsperada) {
+                      respuestaRecibida = lecturaSensor(bobinas[i]);
+                      Serial.print("Respuesta esperada: ");
+                      Serial.print(respuestaEsperada);
+                      Serial.print("\t Respuesta recibida: ");
+                      Serial.print(respuestaRecibida);
+                      Serial.println();
+                    }
+                    Serial.println("Salir del bucle.");
+
                 }
             }
         }
@@ -135,7 +191,7 @@ void loop() {
     }
     
     if (mb.isConnected(remote)) {
-        mb.readHreg(remote, REG, &res);
+        //mb.readHreg(remote, REG, &res);
     } else {
         mb.connect(remote);
         Serial.println("Intentando conectar...");
