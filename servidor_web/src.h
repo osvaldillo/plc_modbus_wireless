@@ -9,18 +9,33 @@ const char* html = R"(
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>bobinas Neumáticas</title>
+    <title>Secuencias Neumáticas</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
         .container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
-            margin-top: 50px;
+            gap: 15px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+            margin: auto;
         }
         .label-container, .button-container {
             display: flex;
-            gap: 10px;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         .label-item {
             display: flex;
@@ -28,39 +43,63 @@ const char* html = R"(
             align-items: center;
         }
         .label {
-            padding: 10px;
-            border: 1px solid #000;
+            padding: 12px;
+            border-radius: 5px;
             cursor: grab;
+            font-weight: bold;
+            transition: transform 0.2s, background-color 0.3s;
+            border: 1px solid #333;
         }
-        .label.plus { background-color: lightblue; }
-        .label.minus { background-color: lightgreen; }
+        .label:hover {
+            transform: scale(1.1);
+        }
+        .label.plus { background-color: #3498db; color: white; }
+        .label.minus { background-color: #2ecc71; color: white; }
         .drop-zone {
-            width: 300px;
-            min-height: 50px;
-            border: 2px dashed #000;
+            width: 80%;
+            min-height: 80px;
+            border: 2px dashed #007BFF;
+            background: #e3f2fd;
             padding: 10px;
             display: flex;
             flex-wrap: wrap;
-            gap: 5px;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .drop-zone:hover {
+            background-color: #d0ebff;
         }
         .btn {
-            padding: 8px 12px;
+            padding: 10px 15px;
             border: none;
-            background-color: #007BFF;
-            color: white;
+            border-radius: 5px;
+            font-size: 16px;
             cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
         }
         .btn:hover {
-            background-color: #000000;
+            opacity: 0.8;
+            transform: scale(1.05);
         }
         .btn:disabled {
-            background-color: #fff;
-            opacity: 0.6;
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #undoBtn { background-color: #e74c3c; color: white; }
+        #sendBtn { background-color: #007BFF; color: white; }
+        .instructions {
+            font-size: 14px;
+            color: #555;
+            max-width: 80%;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <h2>Construcción de Secuencia Neumática</h2>
+        <p class="instructions">Arrastra los elementos a la zona de secuencia y alterna entre + y - con el botón "Toggle".</p>
         <div class="label-container" id="labelContainer">
             <div class="label-item">
                 <button class="btn toggle-btn">Toggle</button>
@@ -193,6 +232,7 @@ const char* html = R"(
     </script>
 </body>
 </html>
+
 
 )";
 

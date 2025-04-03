@@ -3,8 +3,10 @@
 #include <ModbusIP_ESP8266.h>
 
 // Configuración de red
-const char* ssid = "Mega_2.4G_E4A1";
-const char* password = "qHkqSqKc";
+//const char* ssid = "Mega_2.4G_E4A1";const char* password = "qHkqSqKc";
+const char* ssid = "Mega-2.4G-16B1"; const char* password = "Jb8w5mzByz";
+
+
 WiFiServer server(80);
 
 // Configuración de Modbus
