@@ -99,22 +99,22 @@ const char* html = R"(
 <body>
     <div class="container">
         <h2>Construcción de Secuencia Neumática</h2>
-        <p class="instructions">Arrastra los elementos a la zona de secuencia y alterna entre + y - con el botón "Toggle".</p>
+        <p class="instructions">Arrastra los elementos a la zona de secuencia y alterna entre + y - con el botón "Alternar".</p>
         <div class="label-container" id="labelContainer">
             <div class="label-item">
-                <button class="btn toggle-btn">Toggle</button>
+                <button class="btn toggle-btn">Alternar</button>
                 <div class="label plus" draggable="true">A+</div>
             </div>
             <div class="label-item">
-                <button class="btn toggle-btn">Toggle</button>
+                <button class="btn toggle-btn">Alternar</button>
                 <div class="label plus" draggable="true">B+</div>
             </div>
             <div class="label-item">
-                <button class="btn toggle-btn">Toggle</button>
+                <button class="btn toggle-btn">Alternar</button>
                 <div class="label plus" draggable="true">C+</div>
             </div>
             <div class="label-item">
-                <button class="btn toggle-btn">Toggle</button>
+                <button class="btn toggle-btn">Alternar</button>
                 <div class="label plus" draggable="true">D+</div>
             </div>
         </div>
@@ -139,6 +139,12 @@ const char* html = R"(
         const history = [];
 
         function toggleLabel(label) {
+            let secuencia = label.innerText;
+            let url = "/?secuencia=" + encodeURIComponent(secuencia);
+            fetch(url)
+                .then(response => console.log("Secuencia enviada: ", secuencia))
+                .catch(error => console.error("Error al enviar secuencia", error));
+            
             const newText = label.innerText.endsWith('+') ? label.innerText.replace('+', '-') : label.innerText.replace('-', '+');
             label.innerText = newText;
             label.classList.toggle('plus');
@@ -223,16 +229,32 @@ const char* html = R"(
         });
         
         sendBtn.addEventListener('click', () => {
+            const times = [
+                {letra:"A", valor: a_times},
+                {letra:"B", valor: b_times},
+                {letra:"C", valor: c_times},
+                {letra:"D", valor: d_times}
+            ];
+            let faltante = "";
+            times.forEach(cil=>{
+                if (cil.valor%2 != 0){
+                    faltante += faltante ? ", " + cil.letra : cil.letra;
+                }
+            })
+            if(faltante){
+                alert("No todos los cilindros regresan a su posición inicial. Revisa tu secuencia, e inténtalo de nuevo. Cilindros: (" + faltante + ").")
+            }
+            else{
             let secuencia = document.getElementById("resultado").innerText;
             let url = "/?secuencia=" + encodeURIComponent(secuencia);
             fetch(url)
                 .then(response => console.log("Secuencia enviada: ", secuencia))
                 .catch(error => console.error("Error al enviar secuencia", error));
+            };
         });
     </script>
 </body>
 </html>
-
 
 )";
 

@@ -1,6 +1,7 @@
 #include <WiFi.h>
 #include "src.h"
 #include <ModbusIP_ESP8266.h>
+#include <ESPmDNS.h>
 
 // Configuración de red
 //const char* ssid = "Mega_2.4G_E4A1";const char* password = "qHkqSqKc";
@@ -11,7 +12,7 @@ WiFiServer server(80);
 
 // Configuración de Modbus
 const int REG = 0;
-IPAddress remote(192, 168, 1, 3);
+IPAddress remote(192, 168, 1, 2);
 ModbusIP mb;
 
 // Parámetros globales
@@ -106,7 +107,11 @@ void setup() {
     Serial.println("\nConectado a WiFi");
     Serial.print("Dirección IP: ");
     Serial.println(WiFi.localIP());
-    
+    if (!MDNS.begin("esp32")) {
+    Serial.println("Error iniciando mDNS");
+    return;
+  }
+     
     server.begin();
     mb.client();
     mb.disconnect(remote);    
@@ -168,7 +173,8 @@ void loop() {
                     Serial.print("\t Respuesta recibida: ");
                     Serial.print(respuestaRecibida);
                     Serial.println("\t Desde afuera");
-                    while (respuestaRecibida != respuestaEsperada) {
+                    unsigned long ahora = millis();
+                    while ((respuestaRecibida != respuestaEsperada) && (millis()-ahora < 5000)) {
                       respuestaRecibida = lecturaSensor(bobinas[i]);
                       Serial.print("Respuesta esperada: ");
                       Serial.print(respuestaEsperada);
